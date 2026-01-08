@@ -4,11 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="ce504265-fdf2-4c79-9b63-89efac2571c9" name="Changes" comment="Симуляция мира и турели">
+    <list default="true" id="ce504265-fdf2-4c79-9b63-89efac2571c9" name="Changes" comment="управление кнопками, отрисовка горизонта, стрельба">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tur_sim/camera_virtual.py" beforeDir="false" afterPath="$PROJECT_DIR$/tur_sim/camera_virtual.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tur_sim/physical_object.py" beforeDir="false" afterPath="$PROJECT_DIR$/tur_sim/physical_object.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tur_sim/physical_world.py" beforeDir="false" afterPath="$PROJECT_DIR$/tur_sim/physical_world.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tur_sim/turret_model.py" beforeDir="false" afterPath="$PROJECT_DIR$/tur_sim/turret_model.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tur_sim/widget_camera.py" beforeDir="false" afterPath="$PROJECT_DIR$/tur_sim/widget_camera.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -116,12 +116,21 @@
       <option name="project" value="LOCAL" />
       <updated>1767851672460</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="управление кнопками, отрисовка горизонта, стрельба">
+      <option name="closed" value="true" />
+      <created>1767852983590</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1767852983590</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Init" />
     <MESSAGE value="Симуляция мира и турели" />
-    <option name="LAST_COMMIT_MESSAGE" value="Симуляция мира и турели" />
+    <MESSAGE value="управление кнопками, отрисовка горизонта, стрельба" />
+    <option name="LAST_COMMIT_MESSAGE" value="управление кнопками, отрисовка горизонта, стрельба" />
   </component>
 </project>

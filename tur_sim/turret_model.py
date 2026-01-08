@@ -46,7 +46,8 @@ class TurretModel:
             pos= [0, 0, 0],  # Вылет из начала координат (где стоит пушка)
             radius= 0.1,
             color= (0, 255, 0),
-            behavior= MotionLinear(velocity=velocity)
+            behavior= MotionLinear(velocity=velocity),
+            lifetime= 3.0  # Пуля исчезнет через 3 секунды сама
 
         )
         self.world.add_object(projectile)
