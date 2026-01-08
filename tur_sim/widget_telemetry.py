@@ -1,11 +1,14 @@
 import pygame
 from datetime import datetime
+
+from .controller import Controller
 from .widget_base import WidgetBase
 
 class WidgetTelemetry(WidgetBase):
     """Виджет для вывода текстовых данных"""
-    def __init__(self, x, y, width, height):
+    def __init__(self, x, y, width, height, controller):
         super().__init__(x, y, width, height)
+        self.controller : Controller = controller
         self.font = pygame.font.SysFont('Arial', 18)
 
     def draw(self, screen):

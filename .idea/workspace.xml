@@ -4,22 +4,17 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="ce504265-fdf2-4c79-9b63-89efac2571c9" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/turel.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Pipfile" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Pipfile.lock" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tur_sim/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tur_sim/camera_base.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tur_sim/ui_manager.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tur_sim/widget_base.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tur_sim/widget_camera.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tur_sim/widget_telemetry.py" afterDir="false" />
+    <list default="true" id="ce504265-fdf2-4c79-9b63-89efac2571c9" name="Changes" comment="Init">
+      <change afterPath="$PROJECT_DIR$/tur_sim/camera_virtual.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tur_sim/controller.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tur_sim/motion_base.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tur_sim/physical_object.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tur_sim/physical_world.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tur_sim/turret_model.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tur_sim/ui_manager.py" beforeDir="false" afterPath="$PROJECT_DIR$/tur_sim/ui_manager.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tur_sim/widget_telemetry.py" beforeDir="false" afterPath="$PROJECT_DIR$/tur_sim/widget_telemetry.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -36,6 +31,18 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
+  "lastFilter": {
+    "state": "OPEN",
+    "assignee": "m-klykov"
+  }
+}]]></component>
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/m-klykov/260108_turel.git",
+    "accountId": "477c940f-dcf7-4ff1-863e-8598fb9810bb"
+  }
+}]]></component>
   <component name="ProjectColorInfo"><![CDATA[{
   "associatedIndex": 6
 }]]></component>
@@ -99,6 +106,19 @@
       <option name="presentableId" value="Default" />
       <updated>1767841939452</updated>
     </task>
+    <task id="LOCAL-00001" summary="Init">
+      <option name="closed" value="true" />
+      <created>1767843667518</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1767843667518</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Init" />
+    <option name="LAST_COMMIT_MESSAGE" value="Init" />
   </component>
 </project>
