@@ -4,13 +4,16 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="ce504265-fdf2-4c79-9b63-89efac2571c9" name="Changes" comment="исчезновение пуот и учет попаданий">
+    <list default="true" id="ce504265-fdf2-4c79-9b63-89efac2571c9" name="Changes" comment="отрисовка псевдо теней, явная детекция объектов (из мира)">
+      <change afterPath="$PROJECT_DIR$/tur_sim/image_analizer.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tur_sim/camera_base.py" beforeDir="false" afterPath="$PROJECT_DIR$/tur_sim/camera_base.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tur_sim/camera_virtual.py" beforeDir="false" afterPath="$PROJECT_DIR$/tur_sim/camera_virtual.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tur_sim/controller.py" beforeDir="false" afterPath="$PROJECT_DIR$/tur_sim/controller.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tur_sim/physical_object.py" beforeDir="false" afterPath="$PROJECT_DIR$/tur_sim/physical_object.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tur_sim/physical_world.py" beforeDir="false" afterPath="$PROJECT_DIR$/tur_sim/physical_world.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tur_sim/turret_model.py" beforeDir="false" afterPath="$PROJECT_DIR$/tur_sim/turret_model.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tur_sim/ui_manager.py" beforeDir="false" afterPath="$PROJECT_DIR$/tur_sim/ui_manager.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tur_sim/widget_camera.py" beforeDir="false" afterPath="$PROJECT_DIR$/tur_sim/widget_camera.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tur_sim/widget_telemetry.py" beforeDir="false" afterPath="$PROJECT_DIR$/tur_sim/widget_telemetry.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -134,7 +137,15 @@
       <option name="project" value="LOCAL" />
       <updated>1767854175766</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="отрисовка псевдо теней, явная детекция объектов (из мира)">
+      <option name="closed" value="true" />
+      <created>1767895849002</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1767895849002</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
@@ -142,6 +153,7 @@
     <MESSAGE value="Симуляция мира и турели" />
     <MESSAGE value="управление кнопками, отрисовка горизонта, стрельба" />
     <MESSAGE value="исчезновение пуот и учет попаданий" />
-    <option name="LAST_COMMIT_MESSAGE" value="исчезновение пуот и учет попаданий" />
+    <MESSAGE value="отрисовка псевдо теней, явная детекция объектов (из мира)" />
+    <option name="LAST_COMMIT_MESSAGE" value="отрисовка псевдо теней, явная детекция объектов (из мира)" />
   </component>
 </project>

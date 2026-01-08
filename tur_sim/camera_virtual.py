@@ -18,6 +18,12 @@ class CameraVirtual(CameraBase):
         self.yaw = 0.0  # горизонталь
         self.pitch = 0.0  # вертикаль
 
+        self._last_frame = None
+
+    def refresh(self):
+        """очистить кеш изображения"""
+        self._last_frame = None
+
     def _get_rotation_matrix(self):
         # Матрицы для вращения мира ПЕРЕД проекцией
         # Поворачиваем мир в обратную сторону от камеры
@@ -46,6 +52,11 @@ class CameraVirtual(CameraBase):
         return (screen_x, screen_y), screen_r
 
     def get_frame(self):
+
+        if self._last_frame is not None:
+            # кеш
+            return self._last_frame
+
         # 1. Создаем пустой кадр
         frame = np.zeros((self.height, self.width, 3), dtype=np.uint8)
 
@@ -64,7 +75,7 @@ class CameraVirtual(CameraBase):
 
         # Земля (зеленая) - от горизонта до низа кадра
         if h_clamped < self.height:
-            cv2.rectangle(frame, (0, h_clamped), (self.width, self.height), (100, 180, 100), -1)
+            cv2.rectangle(frame, (0, h_clamped), (self.width, self.height), (100, 100, 100), -1)
 
         # 5. Рисуем линию направления (Компас / Yaw indicator)
         # Вычисляем смещение по X: если yaw=0, линия в центре.
@@ -95,7 +106,7 @@ class CameraVirtual(CameraBase):
             if shadow_res:
                 (sh_x, sh_y), sh_r = shadow_res
                 if 0 <= sh_x < self.width and 0 <= sh_y < self.height:
-                    cv2.ellipse(frame, (sh_x, sh_y), (sh_r, sh_r // 2), 0, 0, 360, (60, 80, 60), -1)
+                    cv2.ellipse(frame, (sh_x, sh_y), (sh_r, sh_r // 2), 0, 0, 360, (60, 60, 60), -1)
 
             # --- РИСУЕМ ОБЪЕКТ ---
             obj_res = self.project_point(R @ obj.pos, obj.radius)
@@ -105,6 +116,8 @@ class CameraVirtual(CameraBase):
                 if 0 <= ox < self.width and 0 <= oy < self.height:
                     cv2.circle(frame, (ox, oy), max(1, or_px), obj.color, -1)
                     cv2.circle(frame, (ox, oy), max(1, or_px), (0, 0, 0), 1)
+
+        self._last_frame = frame
 
         return frame
 
@@ -130,3 +143,21 @@ class CameraVirtual(CameraBase):
                     "dist": z  # Дистанция очень важна для баллистики!
                 })
         return detections
+
+    # В класс CameraVirtual добавьте метод:
+    def get_angles_from_pixel(self, x, y):
+        """
+        Рассчитывает yaw и pitch, необходимые, чтобы направить центр камеры на точку (x, y).
+        x, y - координаты относительно левого верхнего угла кадра (0..width, 0..height).
+        """
+        # 1. Отклонение от центра в пикселях
+        dx = x - self.cx
+        dy = y - self.cy
+
+        # 2. Переводим пиксели в углы (приблизительно для малых углов или через arctan)
+        # Используем f (фокусное расстояние), чтобы сохранить геометрию
+        delta_yaw = np.arctan2(dx, self.f)
+        delta_pitch = np.arctan2(dy, self.f)
+
+        # 3. Новые углы = текущие углы + дельта
+        return self.yaw + delta_yaw, self.pitch - delta_pitch

@@ -8,6 +8,10 @@ class CameraBase:
         self.width = width
         self.height = height
 
+    def refresh(self):
+        """очистить кеш изображения"""
+        pass
+
     def get_frame(self):
         """Возвращает кадр в формате OpenCV (BGR numpy array)"""
         # Пока просто генерируем черный кадр

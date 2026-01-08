@@ -24,7 +24,7 @@ class UIManager:
         # Размещаем камеру по центру-лево
         self.elements.append(WidgetCamera(
             20, 20,
-            self.controller.camera))
+            self.controller))
 
         # Телеметрия справа
         self.elements.append(WidgetTelemetry(
@@ -67,7 +67,8 @@ class UIManager:
         if keys[pygame.K_UP]:    dy = - dt
         if keys[pygame.K_DOWN]:  dy = dt
 
-        self.controller.turret.turn(dx,dy)
+        if dx != 0 or dy != 0:
+            self.controller.turret.turn(dx,dy)
 
         self.controller.update(dt)
 

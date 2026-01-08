@@ -15,18 +15,61 @@ class TurretModel:
         self.world : PhysicalWorld = world
         self.yaw = 0.0
         self.pitch = 0.0
+
+        # Целевое положение (куда хотим смотреть)
+        self.target_yaw = 0.0
+        self.target_pitch = 0.0
+
+        #поворот по клавишам
         self.turn_speed = math.radians(20)
+        #поворот по точке
+        self.max_turn_speed = math.radians(40)
+
         self.projectile_speed = 50.0  # м/с
 
+    def set_direct_target_angles(self, yaw, pitch):
+        """Прямая устанока угла"""
+        self.set_target_angles(yaw, pitch)
+
+        self.yaw = self.target_yaw
+        self.pitch = self.target_pitch
+
+    def set_target_angles(self, yaw, pitch):
+        """Устанавливаем точку, куда турель должна начать плавно поворачиваться"""
+        self.target_yaw = yaw
+        # Ограничим наклон, чтобы пушка не делала "сальто" (от -90 до +90 град)
+        self.target_pitch = max(math.radians(-89), min(math.radians(89), pitch))
+
+        # print(f"set target angles {self.target_yaw:0.2f} {self.target_pitch:0.2f}")
+
+    def _approach(self, current, target, max_delta):
+        """Вспомогательная функция для плавного движения к цели"""
+        diff = target - current
+        # Если разница меньше, чем мы можем пройти за кадр, просто прыгаем в цель
+        if abs(diff) <= max_delta:
+            return target
+        # Иначе двигаемся с максимальной скоростью в нужном направлении
+        return current + math.copysign(max_delta, diff)
+
     def update(self, dt):
-        # Синхронизируем камеру с углами турели
+        # Максимальный поворот за этот кадр
+        step = self.max_turn_speed * dt
+
+        # Плавно двигаем углы
+        self.yaw = self._approach(self.yaw, self.target_yaw, step)
+        self.pitch = self._approach(self.pitch, self.target_pitch, step)
+
+        # Синхронизируем камеру с актуальными углами
         self.camera.yaw = self.yaw
         self.camera.pitch = self.pitch
 
-    def set_target_angles(self, yaw, pitch):
-        """Метод для управления турелью (ручного или автоматического)"""
-        self.yaw = yaw
-        self.pitch = pitch
+
+    def turn(self, dx, dy):
+        """воворот в указанное направлении с клавиатуры"""
+        new_yaw = self.yaw + dx * self.turn_speed
+        new_pitch = self.pitch + dy * self.turn_speed
+
+        self.set_target_angles(new_yaw, new_pitch)
 
     def fire(self):
         """Создает снаряд, летящий в направлении взгляда турели"""
@@ -53,9 +96,3 @@ class TurretModel:
         )
         self.world.add_object(projectile)
 
-    def turn(self, dx, dy):
-
-        new_yaw = self.yaw + dx * self.turn_speed
-        new_pitch = self.pitch + dy * self.turn_speed
-
-        self.set_target_angles(new_yaw, new_pitch)
