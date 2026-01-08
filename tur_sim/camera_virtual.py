@@ -29,6 +29,22 @@ class CameraVirtual(CameraBase):
 
         return R_pitch @ R_yaw
 
+    def project_point(self, local_pos, real_radius=0):
+        """
+        Принимает точку в ЛОКАЛЬНЫХ координатах камеры.
+        Возвращает (screen_x, screen_y), screen_radius или None, если точка сзади.
+        """
+        x, y, z = local_pos
+
+        if z <= 0.1:
+            return None
+
+        screen_x = int(x * self.f / z + self.cx)
+        screen_y = int(y * self.f / z + self.cy)
+        screen_r = int(real_radius * self.f / z)
+
+        return (screen_x, screen_y), screen_r
+
     def get_frame(self):
         # 1. Создаем пустой кадр
         frame = np.zeros((self.height, self.width, 3), dtype=np.uint8)
@@ -70,24 +86,47 @@ class CameraVirtual(CameraBase):
 
         R = self._get_rotation_matrix()
 
+        # рисуем объекты
         for obj in self.world.objects:
-            # 1. Перевод в локальные координаты камеры
+            # --- РИСУЕМ ТЕНЬ ---
+            shadow_pos_world = np.array([obj.pos[0], 1, obj.pos[2]])
+            shadow_res = self.project_point(R @ shadow_pos_world, obj.radius)
+
+            if shadow_res:
+                (sh_x, sh_y), sh_r = shadow_res
+                if 0 <= sh_x < self.width and 0 <= sh_y < self.height:
+                    cv2.ellipse(frame, (sh_x, sh_y), (sh_r, sh_r // 2), 0, 0, 360, (60, 80, 60), -1)
+
+            # --- РИСУЕМ ОБЪЕКТ ---
+            obj_res = self.project_point(R @ obj.pos, obj.radius)
+
+            if obj_res:
+                (ox, oy), or_px = obj_res
+                if 0 <= ox < self.width and 0 <= oy < self.height:
+                    cv2.circle(frame, (ox, oy), max(1, or_px), obj.color, -1)
+                    cv2.circle(frame, (ox, oy), max(1, or_px), (0, 0, 0), 1)
+
+        return frame
+
+    def get_detections(self):
+        """Имитация работы нейросети: возвращает список найденных объектов"""
+        detections = []
+        R = self._get_rotation_matrix()
+
+        for obj in self.world.objects:
+            # Проекция (как в get_frame)
             local_pos = R @ obj.pos
             x, y, z = local_pos
+            if z <= 0.1: continue
 
-            # 2. Отсечение объектов сзади
-            if z <= 0.1:
-                continue
-
-            # 3. Проекция на плоскость экрана
             screen_x = int(x * self.f / z + self.cx)
             screen_y = int(y * self.f / z + self.cy)
 
-            # Радиус в пикселях зависит от расстояния
-            screen_r = int(obj.radius * self.f / z)
-
-            # 4. Рисование (если объект в пределах экрана)
+            # Проверка, что объект в поле зрения
             if 0 <= screen_x < self.width and 0 <= screen_y < self.height:
-                cv2.circle(frame, (screen_x, screen_y), max(1, screen_r), obj.color, -1)
-
-        return frame
+                detections.append({
+                    "type": obj.obj_type,
+                    "pos": (screen_x, screen_y),
+                    "dist": z  # Дистанция очень важна для баллистики!
+                })
+        return detections

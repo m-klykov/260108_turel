@@ -16,8 +16,8 @@ class PhysicalWorld:
         # Здесь в будущем будет проверка коллизий (попаданий)
         # 2. Проверяем столкновения (пули с целями)
         # Для простоты: пуля — это то, у чего маленький радиус и есть скорость
-        projectiles = [o for o in self.objects if o.radius < 0.2 and not o.is_dead]
-        targets = [o for o in self.objects if o.radius >= 0.2 and not o.is_dead]
+        projectiles = [o for o in self.objects if o.obj_type == "bullet" and not o.is_dead]
+        targets = [o for o in self.objects if o.obj_type == "target" and not o.is_dead]
 
         for p in projectiles:
             for t in targets:

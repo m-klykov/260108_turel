@@ -11,10 +11,13 @@ class Controller:
         self.world = PhysicalWorld()
 
         # Создаем цель: желтый шарик, движется по кругу на расстоянии 10-20 метров
-        target_behavior = MotionCircular(center=[0, 0, 15], radius=5, speed=1.0)
+        target_behavior = MotionCircular(center=[0, -1, 15], radius=5, speed=1.0)
         target = PhysicalObject(
-            pos=[5, 0, 15], radius=0.5,
-            color=(0, 255, 255), behavior=target_behavior)
+            pos=[0, -1, 15], radius=0.5,
+            color=(0, 255, 255), behavior=target_behavior,
+            obj_type="target"
+        )
+
         self.world.add_object(target)
 
         # Инициализируем виртуальную камеру, передав ей мир
