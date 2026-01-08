@@ -30,8 +30,44 @@ class CameraVirtual(CameraBase):
         return R_pitch @ R_yaw
 
     def get_frame(self):
-        # Создаем черный кадр
+        # 1. Создаем пустой кадр
         frame = np.zeros((self.height, self.width, 3), dtype=np.uint8)
+
+        # 2. Вычисляем положение линии горизонта в пикселях
+        # tan(pitch) дает смещение, умножаем на f (фокусное расстояние)
+        # Используем минус, так как в OpenCV ось Y направлена вниз
+        horizon_y = int(self.cy + np.tan(self.pitch) * self.f)
+
+        # 3. Рисуем Небо и Землю
+        # Ограничиваем горизонт пределами кадра, чтобы cv2.rectangle не выдал ошибку
+        h_clamped = max(0, min(self.height, horizon_y))
+
+        # Небо (синее) - от 0 до горизонта
+        if h_clamped > 0:
+            cv2.rectangle(frame, (0, 0), (self.width, h_clamped), (255, 150, 100), -1)  # BGR
+
+        # Земля (зеленая) - от горизонта до низа кадра
+        if h_clamped < self.height:
+            cv2.rectangle(frame, (0, h_clamped), (self.width, self.height), (100, 180, 100), -1)
+
+        # 5. Рисуем линию направления (Компас / Yaw indicator)
+        # Вычисляем смещение по X: если yaw=0, линия в центре.
+        # Используем f (фокусное расстояние) для перевода угла в пиксели.
+        # Важно: используем sin/cos или просто тангенс угла для проекции.
+
+        # Чтобы линия не пропадала сразу, используем проверку видимости (угол в пределах ~90 град)
+        relative_yaw = -self.yaw  # инверсия, так как мир крутится против камеры
+
+        # Условие видимости: если косинус угла положителен, значит направление "перед нами"
+        if np.cos(relative_yaw) > 0:
+            # Смещение от центра экрана в пикселях
+            yaw_x_offset = np.tan(relative_yaw) * self.f
+            north_x = int(self.cx + yaw_x_offset)
+
+            # Рисуем линию от низа экрана до горизонта
+            if 0 <= north_x <= self.width:
+                cv2.line(frame, (self.cx, self.height), (north_x, h_clamped), (150, 150, 150), 2)
+
         R = self._get_rotation_matrix()
 
         for obj in self.world.objects:

@@ -1,3 +1,5 @@
+import math
+
 import numpy as np
 
 from .camera_virtual import CameraVirtual
@@ -6,12 +8,14 @@ from .motion_base import MotionLinear  # Предположим, пуля лет
 from .physical_world import PhysicalWorld
 
 
+
 class TurretModel:
     def __init__(self, camera, world):
         self.camera : CameraVirtual = camera  # Турель "несет" камеру
         self.world : PhysicalWorld = world
         self.yaw = 0.0
         self.pitch = 0.0
+        self.turn_speed = math.radians(20)
         self.projectile_speed = 50.0  # м/с
 
     def update(self, dt):
@@ -48,9 +52,8 @@ class TurretModel:
         self.world.add_object(projectile)
 
     def turn(self, dx, dy):
-        speed = 1.0
 
-        new_yaw = self.yaw + dx * speed
-        new_pitch = self.pitch + dy * speed
+        new_yaw = self.yaw + dx * self.turn_speed
+        new_pitch = self.pitch + dy * self.turn_speed
 
         self.set_target_angles(new_yaw, new_pitch)

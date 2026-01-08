@@ -26,3 +26,22 @@ class WidgetCamera(WidgetBase):
         screen.blit(surface, self.rect)
         pygame.draw.rect(screen, (100, 100, 100), self.rect, 2)  # Рамка
 
+        # 3. Рисуем прицел (Crosshair)
+        center_x, center_y = self.rect.center
+        color = (255, 0, 0)  # Красный прицел
+        length = 20  # Длина линий прицела
+        gap = 5  # Пропуск в самом центре (опционально)
+
+        # Горизонтальная линия (левая и правая части)
+        pygame.draw.line(screen, color, (center_x - length, center_y), (center_x - gap, center_y), 2)
+        pygame.draw.line(screen, color, (center_x + gap, center_y), (center_x + length, center_y), 2)
+
+        # Вертикальная линия (верхняя и нижняя части)
+        pygame.draw.line(screen, color, (center_x, center_y - length), (center_x, center_y - gap), 2)
+        pygame.draw.line(screen, color, (center_x, center_y + gap), (center_x, center_y + length), 2)
+
+        # Точка в центре (необязательно)
+        pygame.draw.circle(screen, color, (center_x, center_y), 2)
+
+        # 4. Внешняя рамка виджета
+        pygame.draw.rect(screen, (100, 100, 100), self.rect, 2)
