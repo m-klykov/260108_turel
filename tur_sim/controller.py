@@ -1,9 +1,6 @@
 import math
-
 import numpy as np
-
 from .ballistics_solver import BallisticsSolver
-from .camera_base import CameraBase
 from .camera_virtual import CameraVirtual
 from .image_analizer import ImageAnalyzer
 from .motion_base import MotionCircular, MotionPointToPoint, MotionSpline
@@ -16,6 +13,12 @@ from .turret_model import TurretModel
 class Controller:
 
     TARGET_RADIUS = 0.5 #радиус цели
+
+    # Состояния автомата
+    STATE_MANUAL = "MANUAL"  # ручная работа
+    STATE_SEARCHING = "SEARCHING"  # Цели нет, смотрим в центр
+    STATE_TRACKING = "TRACKING"  # Цель захвачена, наводимся
+    STATE_WAIT_CPA = "WAIT_CPA"  # Пуля в воздухе, ждем момента сближения
 
     def __init__(self):
         self.world = PhysicalWorld()
@@ -34,6 +37,13 @@ class Controller:
         self.locked_target_data = None  # Здесь храним данные о детекции (экранные)
         self.is_locked = False
         self.active_track : TrackedTarget = None  # Экземпляр TrackedTarget
+
+        # Данные для обучения и статистики
+        self.active_shot = None  # Информация о летящей пуле
+        self.shots_count = 0
+        self.hits_count = 0
+
+        self.state = self.STATE_SEARCHING
 
     def _init_world_v01(self):
         # Создаем цель: желтый шарик, движется по кругу на расстоянии 10-20 метров
@@ -73,14 +83,14 @@ class Controller:
         min_b = [-8, -8, 5]
         max_b = [8, -1, 30]
 
-        spline_behavior = MotionSpline(min_b, max_b, num_points=10, speed=5.0)
+        spline_behavior = MotionSpline(min_b, max_b, num_points=50, speed=5.0)
 
-        target = PhysicalObject(
+        self.target_obj = PhysicalObject(
             pos=[0, -1, 15], radius=self.TARGET_RADIUS,
             color=(0, 255, 255), behavior=spline_behavior,
             obj_type="target"
         )
-        self.world.add_object(target)
+        self.world.add_object(self.target_obj)
 
 
 
@@ -106,9 +116,139 @@ class Controller:
 
         self._update_target_lock()
 
+        # Логика конечного автомата
+        if self.state == self.STATE_SEARCHING:
+            self._state_searching()
+
+        elif self.state == self.STATE_TRACKING:
+            self._state_tracking(dt)
+
+        elif self.state == self.STATE_WAIT_CPA:
+            self._state_wait_cpa()
+
         # Для отладки можно выводить количество найденных объектов
         # if self.current_detections:
         #    print(f"Detected: {len(self.current_detections)} objects")
+
+    def _state_searching(self):
+        """1. Цели не видно — повернуться в 0,0 и ждать."""
+        if self.is_locked:
+            self.state = self.STATE_TRACKING
+            print("Цель активна, идет трекинг")
+            return
+
+        # Ищем любую цель для захвата
+        targets = [d for d in self.current_detections if d["type"] == "target"]
+        if targets:
+            # Берем первую попавшуюся
+            self.handle_target_lock(targets[0])
+            self.state = self.STATE_TRACKING
+            print("Цель найлена! Ативируем.")
+        else:
+             # Возвращаем турель в нейтраль
+            self.turret.set_target_angles(0, 0)
+
+    def _state_tracking(self, dt):
+        """2-3. Цель захвачена, наводимся. Если пули нет — стреляем."""
+        if not self.is_locked:
+            self.state = self.STATE_SEARCHING
+            print("Цель потеряна! Ищем.")
+            return
+
+        if self.active_shot is not None:
+            self.state = self.STATE_WAIT_CPA
+            print("Выстрел не закончен! Ждем резкльтат.")
+            return
+
+        # стреляем
+        self._perform_automated_shot()
+
+    def _perform_automated_shot(self):
+        """Запись параметров и выстрел."""
+        # Снимаем состояние ПЕРЕД выстрелом
+        state = self.get_nn_state()
+
+        bullet = self.turret.fire()
+        if bullet:
+            self.active_shot = {
+                "bullet": bullet,
+                "state": state,
+                "min_dist": float('inf'),
+                "last_rel_pos": None,
+                "target_pos_at_shot": self.active_track.position.copy()
+            }
+            self.state = self.STATE_WAIT_CPA
+            print("Выстрел.")
+            self.shots_count += 1
+        else:
+            self.active_shot = None
+
+    def _state_wait_cpa(self):
+        """4-5. Отслеживаем пулю и ее сближение."""
+        if not self.active_shot or not self.is_locked:
+            self.state = self.STATE_SEARCHING
+            print("Выстрел обнулен! Ищем.")
+            return
+
+        shot = self.active_shot
+        bullet = shot["bullet"]
+        # Берем текущее положение цели (истинное из трекера)
+        target_pos = self.active_track.position
+
+        rel_pos = bullet.pos - target_pos
+        current_dist = np.linalg.norm(rel_pos)
+
+        # Ищем точку минимального сближения (CPA)
+        if current_dist < shot["min_dist"]:
+            shot["min_dist"] = current_dist
+            shot["last_rel_pos"] = rel_pos
+        else:
+            # Расстояние начало расти — пуля пролетела мимо цели
+            self._finalize_shot(shot)
+            self.active_shot = None
+
+            # Если цель всё еще на экране, продолжаем трекинг, иначе в поиск
+            if self.is_locked:
+                self.state = self.STATE_TRACKING
+                print("Готовим следующий выстрел.")
+            else:
+                self.state =self.STATE_SEARCHING
+                print("Ищем цель.")
+
+    def _finalize_shot(self, shot):
+        """Вызывается, когда пуля прошла точку CPA"""
+        # Логгер берет на себя всю грязную работу по записи
+        # is_hit, dist = self.logger.log_shot(
+        #     shot["state"],
+        #     shot["last_rel_pos"],
+        #     self.TARGET_RADIUS
+        # )
+        #
+        # self.total_shots += 1
+        # if is_hit:
+        #     self.hits += 1
+        #
+        # print(f"--- SHOT REPORT ---")
+        # print(f"Total: {self.total_shots} | Hits: {self.hits} ({self.hits / self.total_shots:.1%})")
+        # print(f"Miss distance: {dist:.3f}m")
+
+    def get_nn_state(self):
+        """Упаковка данных для нейросети (State)."""
+        # Смещение цели от центра прицела (в радианах)
+        # err_yaw = self.active_track.target_yaw - self.turret.current_yaw
+        # err_pitch = self.active_track.target_pitch - self.turret.current_pitch
+        #
+        # # Угловая скорость цели (из трекера)
+        # v_y, v_p = self.active_track.velocity_angles  # Предполагаем наличие этих данных
+        #
+        # return np.array([
+        #     err_yaw,
+        #     err_pitch,
+        #     v_y,
+        #     v_p,
+        #     self.active_track.filtered_dist,
+        #     self.turret.current_pitch
+        # ])
 
     def fire(self):
         self.turret.fire()
@@ -142,6 +282,7 @@ class Controller:
         self.turret.set_target_angles(new_yaw, new_pitch)
 
     def handle_target_lock(self, detection):
+        """захватить указанную цель"""
         self.locked_target_data = detection
         self.is_locked = True
 
@@ -170,6 +311,7 @@ class Controller:
             )
 
     def _update_target_lock(self):
+        """цдержание цели и донавотка турели с учктом упреждения"""
         if self.is_locked and self.locked_target_data:
             new_lock = None
             min_dist = 50  # Максимальный прыжок цели между кадрами в пикселях
@@ -192,27 +334,21 @@ class Controller:
 
             else:
                 # Цель потеряна (ушла за экран или скрылась)
-                pass
-                # self.clear_target()
+                self.clear_target()
 
     def _turret_to_target(self):
         if not self.active_track: return
 
         """наводимся на ту цель"""
         # Наводим турель на обновленные координаты
-        # 2. Запрашиваем решение для стрельбы
-        aim_point = self.active_track.get_fire_solution(
-            shooter_pos= np.array([0, 0, 0]),
-            projectile_speed= self.turret.projectile_speed,
-            g= BallisticsSolver.G
+        target_yaw, target_pitch = self.active_track.get_fire_angles(
+            np.array([0, 0, 0]),
+            self.turret.projectile_speed,
+            BallisticsSolver.G
         )
 
-        # 3. Переводим мировую точку прицеливания в углы для турели
-        # (Используем atan2 для Yaw и Pitch)
-        target_yaw = math.atan2(aim_point[0], aim_point[2])
-        target_pitch = -math.atan2(aim_point[1], np.hypot(aim_point[0], aim_point[2]))
-
         self.turret.set_target_angles(target_yaw, target_pitch)
+
 
     def is_active_target(self,det_target):
         """проверим, являктся ли эта цель захваченой"""

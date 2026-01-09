@@ -1,3 +1,5 @@
+import math
+
 import numpy as np
 import time
 
@@ -81,3 +83,16 @@ class TrackedTarget:
         aim_point[1] -= drop_correction
 
         return aim_point
+
+    def get_fire_angles(self, shooter_pos, projectile_speed, g):
+        """погучение углов для турелт"""
+        aim_point = self.get_fire_solution(
+            shooter_pos, projectile_speed, g
+        )
+
+        # Переводим мировую точку прицеливания в углы для турели
+        # (Используем atan2 для Yaw и Pitch)
+        target_yaw = math.atan2(aim_point[0], aim_point[2])
+        target_pitch = -math.atan2(aim_point[1], np.hypot(aim_point[0], aim_point[2]))
+
+        return target_yaw, target_pitch

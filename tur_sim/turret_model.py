@@ -98,3 +98,5 @@ class TurretModel:
         )
         self.world.add_object(projectile)
 
+        return projectile
+
