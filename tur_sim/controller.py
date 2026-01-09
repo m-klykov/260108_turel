@@ -6,7 +6,7 @@ from .ballistics_solver import BallisticsSolver
 from .camera_base import CameraBase
 from .camera_virtual import CameraVirtual
 from .image_analizer import ImageAnalyzer
-from .motion_base import MotionCircular, MotionPointToPoint
+from .motion_base import MotionCircular, MotionPointToPoint, MotionSpline
 from .physical_object import PhysicalObject
 from .physical_world import PhysicalWorld
 from .tracked_target import TrackedTarget
@@ -35,7 +35,7 @@ class Controller:
         self.is_locked = False
         self.active_track : TrackedTarget = None  # Экземпляр TrackedTarget
 
-    def _init_world(self):
+    def _init_world_v01(self):
         # Создаем цель: желтый шарик, движется по кругу на расстоянии 10-20 метров
         target_behavior = MotionCircular(center=[0, -1, 15], radius=5, speed=1.0)
         target = PhysicalObject(
@@ -67,6 +67,22 @@ class Controller:
             obj_type="target"
         )
         self.world.add_object(target)
+
+    def _init_world(self):
+        # Границы: X от -30 до 30, Y от 5 до 20, Z от 40 до 80
+        min_b = [-8, -8, 5]
+        max_b = [8, -1, 30]
+
+        spline_behavior = MotionSpline(min_b, max_b, num_points=10, speed=5.0)
+
+        target = PhysicalObject(
+            pos=[0, -1, 15], radius=self.TARGET_RADIUS,
+            color=(0, 255, 255), behavior=spline_behavior,
+            obj_type="target"
+        )
+        self.world.add_object(target)
+
+
 
     def update(self, dt):
         # 1. Обновляем мир и турель и кеш камеры

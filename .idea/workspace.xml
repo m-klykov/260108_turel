@@ -4,17 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="ce504265-fdf2-4c79-9b63-89efac2571c9" name="Changes" comment="управление турелью мышкой, визуальный захват цели">
-      <change afterPath="$PROJECT_DIR$/tur_sim/ballistics_solver.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tur_sim/tracked_target.py" afterDir="false" />
+    <list default="true" id="ce504265-fdf2-4c79-9b63-89efac2571c9" name="Changes" comment="Срельба с учетом упреждения на основе вычисления скорости и учета балистики пули">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tur_sim/camera_virtual.py" beforeDir="false" afterPath="$PROJECT_DIR$/tur_sim/camera_virtual.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tur_sim/controller.py" beforeDir="false" afterPath="$PROJECT_DIR$/tur_sim/controller.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tur_sim/motion_base.py" beforeDir="false" afterPath="$PROJECT_DIR$/tur_sim/motion_base.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tur_sim/physical_object.py" beforeDir="false" afterPath="$PROJECT_DIR$/tur_sim/physical_object.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tur_sim/physical_world.py" beforeDir="false" afterPath="$PROJECT_DIR$/tur_sim/physical_world.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tur_sim/turret_model.py" beforeDir="false" afterPath="$PROJECT_DIR$/tur_sim/turret_model.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tur_sim/widget_telemetry.py" beforeDir="false" afterPath="$PROJECT_DIR$/tur_sim/widget_telemetry.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -154,7 +148,15 @@
       <option name="project" value="LOCAL" />
       <updated>1767903713844</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="Срельба с учетом упреждения на основе вычисления скорости и учета балистики пули">
+      <option name="closed" value="true" />
+      <created>1767926850231</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1767926850231</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
@@ -164,6 +166,7 @@
     <MESSAGE value="исчезновение пуот и учет попаданий" />
     <MESSAGE value="отрисовка псевдо теней, явная детекция объектов (из мира)" />
     <MESSAGE value="управление турелью мышкой, визуальный захват цели" />
-    <option name="LAST_COMMIT_MESSAGE" value="управление турелью мышкой, визуальный захват цели" />
+    <MESSAGE value="Срельба с учетом упреждения на основе вычисления скорости и учета балистики пули" />
+    <option name="LAST_COMMIT_MESSAGE" value="Срельба с учетом упреждения на основе вычисления скорости и учета балистики пули" />
   </component>
 </project>

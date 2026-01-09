@@ -14,7 +14,7 @@ class PhysicalObject:
 
         # Состояния взрыва
         self.is_exploding = False
-        self.explosion_time = 0.4  # Сколько секунд длится вспышка
+        self.explosion_time = 0.3  # Сколько секунд длится вспышка
         self.explosion_timer = 0.0
         self.initial_radius = radius
 
@@ -31,7 +31,7 @@ class PhysicalObject:
             self.explosion_timer -= dt
             # Эффект: радиус растет, цвет становится ярко-оранжевым/белым
             progress = 1.0 - (self.explosion_timer / self.explosion_time)
-            self.radius = self.initial_radius * (1 + progress * 5)  # Увеличиваем в 10 раз
+            self.radius = self.initial_radius * (1 + progress * 3)  # Увеличиваем в 10 раз
 
             # Смена цвета от желтого к красному (имитация затухания)
             self.color = (0, int(255 * (1 - progress)), 255)  # BGR: Желтый -> Красный
