@@ -24,7 +24,8 @@ class PhysicalWorld:
                 # Вычисляем расстояние в 3D
                 dist = np.linalg.norm(p.pos - t.pos)
                 if dist < (p.radius + t.radius):
-                    p.is_dead = True
+                    # Вместо удаления пули - взрываем её
+                    p.trigger_explosion()
                     # t.is_dead = True # Можно уничтожать цель, а можно просто засчитать хит
                     self.score += 1
                     print(f"HIT! Score: {self.score}")

@@ -97,27 +97,45 @@ class CameraVirtual(CameraBase):
 
         R = self._get_rotation_matrix()
 
-        # рисуем объекты
+        # 1. Сначала подготавливаем список всех видимых объектов с их глубиной
+        render_list = []
         for obj in self.world.objects:
+            local_pos = R @ obj.pos
+            z = local_pos[2]
+
+            # Если объект перед камерой, добавляем в список на отрисовку
+            if z > 0.1:
+                render_list.append((z, obj, local_pos))
+
+        # 2. Сортируем список по Z в ОБРАТНОМ ПОРЯДКЕ (от дальних к ближним)
+        # z — это расстояние от камеры, чем оно больше, тем объект дальше
+        render_list.sort(key=lambda x: x[0], reverse=True)
+
+        # 3. Рисуем объекты из отсортированного списка
+        for z, obj, local_pos in render_list:
+
             # --- РИСУЕМ ТЕНЬ ---
+            # Тень всегда на Y=1 (как в вашем коде)
             shadow_pos_world = np.array([obj.pos[0], 1, obj.pos[2]])
             shadow_res = self.project_point(R @ shadow_pos_world, obj.radius)
 
             if shadow_res:
                 (sh_x, sh_y), sh_r = shadow_res
                 if 0 <= sh_x < self.width and 0 <= sh_y < self.height:
+                    # Тень рисуем чуть прозрачнее или темнее
                     cv2.ellipse(frame, (sh_x, sh_y), (sh_r, sh_r // 2), 0, 0, 360, (60, 60, 60), -1)
 
             # --- РИСУЕМ ОБЪЕКТ ---
-            obj_res = self.project_point(R @ obj.pos, obj.radius)
+            # Используем уже вычисленный local_pos, чтобы не умножать матрицы дважды
+            obj_res = self.project_point(local_pos, obj.radius)
 
             if obj_res:
                 (ox, oy), or_px = obj_res
                 if 0 <= ox < self.width and 0 <= oy < self.height:
+                    # Основное тело объекта
                     cv2.circle(frame, (ox, oy), max(1, or_px), obj.color, -1)
+                    # Контур
                     cv2.circle(frame, (ox, oy), max(1, or_px), (0, 0, 0), 1)
-
-        self._last_frame = frame
 
         return frame
 
@@ -161,3 +179,25 @@ class CameraVirtual(CameraBase):
 
         # 3. Новые углы = текущие углы + дельта
         return self.yaw + delta_yaw, self.pitch - delta_pitch
+
+    def get_world_pos_from_screen(self, screen_x, screen_y, distance):
+        """
+        Превращает экранные координаты и дистанцию в мировые координаты [X, Y, Z].
+        """
+        # 1. Считаем локальные координаты относительно оптического центра камеры
+        # Используем формулу: x_local = (x_pixel - cx) * distance / f
+        lx = (screen_x - self.cx) * distance / self.f
+        ly = (screen_y - self.cy) * distance / self.f
+        lz = distance
+
+        local_pos = np.array([lx, ly, lz])
+
+        # 2. Переводим из локальных координат камеры в мировые.
+        # Поскольку local_pos = R @ world_pos, то world_pos = R_inv @ local_pos.
+        # Для матриц вращения инверсия равна транспонированию: R.T
+        R = self._get_rotation_matrix()
+
+        # Мировые координаты = Транспонированная матрица вращения * локальный вектор
+        world_pos = R.T @ local_pos
+
+        return world_pos

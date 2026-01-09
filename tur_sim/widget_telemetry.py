@@ -27,6 +27,10 @@ class WidgetTelemetry(WidgetBase):
           f" pitch: {math.degrees(self.controller.camera.pitch):.1f}",
           1)
 
+        self.out_line(screen,
+            f"Dist to target: {self.controller.get_locked_distance():0.1f}", 2)
+
+
 
 
     def out_line(self, screen, text, line):

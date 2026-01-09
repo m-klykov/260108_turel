@@ -4,7 +4,7 @@ import numpy as np
 
 from .camera_virtual import CameraVirtual
 from .physical_object import PhysicalObject
-from .motion_base import MotionLinear  # Предположим, пуля летит прямо
+from .motion_base import MotionLinear, MotionBallistic  # Предположим, пуля летит прямо
 from .physical_world import PhysicalWorld
 
 
@@ -45,11 +45,13 @@ class TurretModel:
     def _approach(self, current, target, max_delta):
         """Вспомогательная функция для плавного движения к цели"""
         diff = target - current
-        # Если разница меньше, чем мы можем пройти за кадр, просто прыгаем в цель
-        if abs(diff) <= max_delta:
-            return target
-        # Иначе двигаемся с максимальной скоростью в нужном направлении
-        return current + math.copysign(max_delta, diff)
+        # Если мы очень близко (меньше 0.01 рад), не дергаемся
+        if abs(diff) < 0.001:
+            return current
+
+        # Плавное замедление: если дистанция меньше шага, уменьшаем шаг
+        actual_step = min(max_delta, abs(diff) * 0.5)
+        return current + math.copysign(actual_step, diff)
 
     def update(self, dt):
         # Максимальный поворот за этот кадр
@@ -87,10 +89,10 @@ class TurretModel:
         # Снаряд: маленький зеленый шарик
         projectile = PhysicalObject(
             pos= [0, 0, 0],  # Вылет из начала координат (где стоит пушка)
-            radius= 0.1,
+            radius= 0.2,
             color= (0, 255, 0),
             obj_type= "bullet",
-            behavior= MotionLinear(velocity=velocity),
+            behavior= MotionBallistic(velocity=velocity),
             lifetime= 3.0  # Пуля исчезнет через 3 секунды сама
 
         )
