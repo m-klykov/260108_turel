@@ -1,6 +1,7 @@
 import math
 import numpy as np
 
+from .ballistics_corrector import BallisticsCorrector
 from .ballistics_logger import BallisticsLogger
 from .ballistics_solver import BallisticsSolver
 from .camera_virtual import CameraVirtual
@@ -22,10 +23,12 @@ class Controller:
     STATE_TRACKING = "TRACKING"  # Цель захвачена, наводимся
     STATE_WAIT_CPA = "WAIT_CPA"  # Пуля в воздухе, ждем момента сближения
 
-    LOGGING_SHOTS = True # пишеи ли инфу для нейромети в файл
-    LOGGING_FILE = 'dataset_01.csv'
+    LOGGING_SHOTS = False # пишеи ли инфу для нейромети в файл
+    LOGGING_FILE = 'dataset_02.csv'
 
     AUTO_SHOTTING = True # выполняем ли автоматическую стрельбу
+
+    USE_AI = False # исаоользуем нейросеть
 
     def __init__(self):
         self.world = PhysicalWorld()
@@ -62,6 +65,9 @@ class Controller:
 
         if self.LOGGING_SHOTS:
             self.logger = BallisticsLogger(self.LOGGING_FILE)
+
+        if self.USE_AI:
+            self.corrector = BallisticsCorrector()
 
     def _init_world_v01(self):
         # Создаем цель: желтый шарик, движется по кругу на расстоянии 10-20 метров
@@ -396,14 +402,20 @@ class Controller:
             BallisticsSolver.G
         )
 
-        # # 2. Опрашиваем нейросеть (Корректор)
-        # state = self.get_nn_state()
-        # # Сеть выдает поправки, например, [-0.012, +0.005] радиан
-        # delta_yaw, delta_pitch = self.nn_model.predict(state)
-        #
-        # # 3. Итоговый результат
-        # target_yaw +=  delta_yaw
-        # target_pitch += delta_pitch
+        if self.USE_AI:
+            # 2. Получаем текущее состояние для сети
+            state = self.get_nn_state()  # Возвращает [err_yaw, err_pitch, v_yaw, v_pitch, dist, t_pitch]
+
+            # 3. Запрашиваем поправку
+            d_yaw, d_pitch = self.corrector.get_correction(*state)
+
+            # print(f"Target angles: Math({target_yaw:.3f}) | AI({d_yaw:.4f})")
+            # print(f"Inputs: Dist: {state[4]:.1f} | V_yaw: {state[2]:.4f}")
+
+            # 4. Складываем результат
+            target_yaw -= d_yaw
+            target_pitch -= d_pitch
+
 
         self.turret.set_target_angles(target_yaw, target_pitch)
 
