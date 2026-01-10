@@ -26,14 +26,14 @@ class Controller:
     LOGGING_SHOTS = False # пишеи ли инфу для нейромети в файл
     LOGGING_FILE = 'dataset_02.csv'
 
-    AUTO_SHOTTING = True # выполняем ли автоматическую стрельбу
+    AUTO_SHOTTING = False # выполняем ли автоматическую стрельбу
 
     USE_AI = False # исаоользуем нейросеть
 
     def __init__(self):
         self.world = PhysicalWorld()
 
-        self._init_world()
+        self._init_world() # _v02
 
         # Инициализируем виртуальную камеру, передав ей мир
         self.camera : CameraVirtual = CameraVirtual(self.world, width=640, height=480, f=500)
@@ -53,7 +53,7 @@ class Controller:
         self.shots_count = 0
         self.hits_count = 0
 
-        self.fire_wait_ticks = 30
+        self.fire_wait_ticks = 50
         self.fire_wait_cnt = 0
 
         self.lost_targ_cnt = 0
@@ -68,6 +68,12 @@ class Controller:
 
         if self.USE_AI:
             self.corrector = BallisticsCorrector()
+
+    def set_auto_mode(self, tutn_on):
+        if tutn_on:
+            self.state = self.STATE_SEARCHING
+        else:
+            self.state = self.STATE_MANUAL
 
     def _init_world_v01(self):
         # Создаем цель: желтый шарик, движется по кругу на расстоянии 10-20 метров
@@ -101,6 +107,22 @@ class Controller:
             obj_type="target"
         )
         self.world.add_object(target)
+
+    def _init_world_v02(self):
+        for i in range(5):
+            target_behavior = MotionPointToPoint(
+                [-4, -(1 + i*2), 20],
+                [4, -(1 + i*2), 20],
+                i*0.6)
+
+            target = PhysicalObject(
+                pos=[0, 10, 20], radius=self.TARGET_RADIUS,
+                color=(0, 255, 255), behavior=target_behavior,
+                obj_type="target"
+            )
+            self.world.add_object(target)
+
+
 
     def _init_world(self):
         # Границы: X от -30 до 30, Y от 5 до 20, Z от 40 до 80

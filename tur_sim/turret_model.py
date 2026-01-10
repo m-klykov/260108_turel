@@ -23,7 +23,7 @@ class TurretModel:
         #поворот по клавишам
         self.turn_speed = math.radians(20)
         #поворот по точке
-        self.max_turn_speed = math.radians(40)
+        self.max_turn_speed = math.radians(60)
 
         self.projectile_speed = 50.0  # м/с
 

@@ -1,8 +1,17 @@
 import pygame
+
+from .widget_buttom import WidgetButton
 from .camera_base import CameraBase
 from .widget_camera import WidgetCamera
 from .widget_telemetry import WidgetTelemetry
 from .controller import Controller
+
+# геометтрия кнопок
+BTN_W = 120
+BTN_H = 40
+BTN_GAP = 15
+
+FPS_FONT_SIZE = 24
 
 class UIManager:
     def __init__(self, controller, width=1000, height=600):
@@ -10,8 +19,14 @@ class UIManager:
         self.controller : Controller = controller
 
         pygame.init()
+        self.width, self.height = width, height
         self.screen = pygame.display.set_mode((width, height))
         pygame.display.set_caption("Robotic Turret Control System")
+        try:
+            self.font = pygame.font.Font(None, FPS_FONT_SIZE)
+        except:
+            print("Предупреждение: Не удалось загрузить стандартный шрифт PyGame.")
+            self.font = None
 
         self.clock = pygame.time.Clock()
         self.running = True
@@ -30,6 +45,30 @@ class UIManager:
         self.elements.append(WidgetTelemetry(
             680, 20, 300, 100,
             self.controller))
+
+        tool_x = 20
+        tool_y = self.height - BTN_H - BTN_GAP
+
+        # Создаем кнопкb
+        self.elements.append(WidgetButton(
+            tool_x,
+            tool_y,
+            BTN_W, BTN_H,
+            self.font, "АВТОМАТ",
+            lambda: self.controller.set_auto_mode(True)
+        ))
+
+        tool_x += BTN_W + BTN_GAP
+
+        self.elements.append(WidgetButton(
+            tool_x,
+            tool_y,
+            BTN_W, BTN_H,
+            self.font, "РУЧНОЙ",
+            lambda: self.controller.set_auto_mode(False)
+        ))
+
+        tool_x += BTN_W + BTN_GAP
 
     def run(self):
         while self.running:

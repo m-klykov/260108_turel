@@ -4,12 +4,15 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="ce504265-fdf2-4c79-9b63-89efac2571c9" name="Changes" comment="механика сбора данных для нейросети">
-      <change afterPath="$PROJECT_DIR$/test.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/train.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tur_sim/ballistics_corrector.py" afterDir="false" />
+    <list default="true" id="ce504265-fdf2-4c79-9b63-89efac2571c9" name="Changes" comment="Обучаем и применяем нейросеть">
+      <change afterPath="$PROJECT_DIR$/analise.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tur_sim/widget_buttom.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Pipfile" beforeDir="false" afterPath="$PROJECT_DIR$/Pipfile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Pipfile.lock" beforeDir="false" afterPath="$PROJECT_DIR$/Pipfile.lock" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tur_sim/controller.py" beforeDir="false" afterPath="$PROJECT_DIR$/tur_sim/controller.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tur_sim/turret_model.py" beforeDir="false" afterPath="$PROJECT_DIR$/tur_sim/turret_model.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tur_sim/ui_manager.py" beforeDir="false" afterPath="$PROJECT_DIR$/tur_sim/ui_manager.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -49,18 +52,23 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
+    "Python.analise.executor": "Run",
     "Python.controller.executor": "Run",
     "Python.main.executor": "Run",
     "Python.test.executor": "Run",
     "Python.train.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "git-widget-placeholder": "master",
-    "last_opened_file_path": "D:/Python/260108_turel/turel/tur_sim",
+    "last_opened_file_path": "D:/Python/251212_sim/python/core/ui_pygame.py",
     "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable"
   }
 }]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="D:\Python\260108_turel\turel" />
+      <recent name="D:\Python\260108_turel\turel\tur_sim" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
       <recent name="D:\Python\260108_turel\turel\tur_sim" />
     </key>
   </component>
@@ -184,7 +192,15 @@
       <option name="project" value="LOCAL" />
       <updated>1768009836807</updated>
     </task>
-    <option name="localTasksCounter" value="11" />
+    <task id="LOCAL-00011" summary="Обучаем и применяем нейросеть">
+      <option name="closed" value="true" />
+      <created>1768015643396</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1768015643396</updated>
+    </task>
+    <option name="localTasksCounter" value="12" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
@@ -198,6 +214,7 @@
     <MESSAGE value="сплайновый полет цели" />
     <MESSAGE value="автоматическия стрельба" />
     <MESSAGE value="механика сбора данных для нейросети" />
-    <option name="LAST_COMMIT_MESSAGE" value="механика сбора данных для нейросети" />
+    <MESSAGE value="Обучаем и применяем нейросеть" />
+    <option name="LAST_COMMIT_MESSAGE" value="Обучаем и применяем нейросеть" />
   </component>
 </project>
