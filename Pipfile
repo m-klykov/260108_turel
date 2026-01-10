@@ -7,6 +7,9 @@ name = "pypi"
 numpy = "*"
 opencv-python = "*"
 pygame = "*"
+pandas = "*"
+torch = "*"
+scikit-learn = "*"
 
 [dev-packages]
 

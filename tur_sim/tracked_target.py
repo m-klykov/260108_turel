@@ -25,11 +25,31 @@ class TrackedTarget:
         self.filtered_dist = raw_dist
         self.dist_alpha = 0.1  # Жесткий фильтр для дистанции (0.05 - 0.15)
 
+        self.last_angles = None
+        self.velocity_angles = np.zeros(2)  # [v_yaw, v_pitch] в рад/сек
+
     def update_with_screen_data(self, screen_x, screen_y, raw_dist, camera):
         """
         Обновление через сырые данные с камеры.
         Сначала фильтруем дистанцию, потом считаем всё остальное.
         """
+        now = time.time()
+        dt = now - self.last_update_time
+
+        # 1. Получаем углы на цель прямо сейчас (из пикселей)
+        current_yaw, current_pitch = camera.get_angles_from_pixel(screen_x, screen_y)
+
+        if self.last_angles is not None and dt > 0:
+            # Вычисляем угловую скорость (сглаживаем её)
+            inst_v_yaw = (current_yaw - self.last_angles[0]) / dt
+            inst_v_pitch = (current_pitch - self.last_angles[1]) / dt
+
+            alpha_v = 0.1  # Фильтр для скорости
+            self.velocity_angles[0] = self.velocity_angles[0] * (1 - alpha_v) + inst_v_yaw * alpha_v
+            self.velocity_angles[1] = self.velocity_angles[1] * (1 - alpha_v) + inst_v_pitch * alpha_v
+
+        self.last_angles = (current_yaw, current_pitch)
+
         # 1. Фильтруем дистанцию (убираем скачки в пикселях)
         self.filtered_dist = self.filtered_dist * (1 - self.dist_alpha) + raw_dist * self.dist_alpha
 

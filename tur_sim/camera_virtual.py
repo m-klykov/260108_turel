@@ -201,3 +201,34 @@ class CameraVirtual(CameraBase):
         world_pos = R.T @ local_pos
 
         return world_pos
+
+    def get_angles_from_world_point(self, world_point):
+        """
+        Принимает точку в мировых координатах [x, y, z].
+        Возвращает (yaw_offset, pitch_offset) в радианах относительно
+        центра (оптической оси) камеры.
+        """
+        # 1. Получаем матрицу вращения (она уже учитывает текущие self.yaw и self.pitch)
+        R = self._get_rotation_matrix()
+
+        # 2. Переводим мировую точку в локальные координаты камеры
+        # ВАЖНО: если камера смещена относительно (0,0,0),
+        # нужно сначала вычесть позицию камеры: (world_point - self.pos)
+        local_pos = R @ np.array(world_point)
+
+        x, y, z = local_pos
+
+        # Если точка за спиной, углы будут иметь мало смысла,
+        # но для математики CPA это все равно сработает
+        if abs(z) < 0.001: z = 0.001
+
+        # 3. Вычисляем углы отклонения
+        # yaw_offset: влево-вправо относительно центрального луча
+        yaw_offset = np.arctan2(x, z)
+
+        # pitch_offset: вверх-вниз (минус, так как в экранных координатах Y вниз)
+        # Используем гипотенузу xz для более точного вертикального угла
+        dist_xz = np.hypot(x, z)
+        pitch_offset = np.arctan2(y, dist_xz)
+
+        return yaw_offset, pitch_offset

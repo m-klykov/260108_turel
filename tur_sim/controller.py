@@ -1,5 +1,7 @@
 import math
 import numpy as np
+
+from .ballistics_logger import BallisticsLogger
 from .ballistics_solver import BallisticsSolver
 from .camera_virtual import CameraVirtual
 from .image_analizer import ImageAnalyzer
@@ -19,6 +21,11 @@ class Controller:
     STATE_SEARCHING = "SEARCHING"  # Цели нет, смотрим в центр
     STATE_TRACKING = "TRACKING"  # Цель захвачена, наводимся
     STATE_WAIT_CPA = "WAIT_CPA"  # Пуля в воздухе, ждем момента сближения
+
+    LOGGING_SHOTS = True # пишеи ли инфу для нейромети в файл
+    LOGGING_FILE = 'dataset_01.csv'
+
+    AUTO_SHOTTING = True # выполняем ли автоматическую стрельбу
 
     def __init__(self):
         self.world = PhysicalWorld()
@@ -43,7 +50,18 @@ class Controller:
         self.shots_count = 0
         self.hits_count = 0
 
-        self.state = self.STATE_SEARCHING
+        self.fire_wait_ticks = 30
+        self.fire_wait_cnt = 0
+
+        self.lost_targ_cnt = 0
+
+        if self.AUTO_SHOTTING:
+            self.state = self.STATE_SEARCHING
+        else:
+            self.state = self.STATE_MANUAL
+
+        if self.LOGGING_SHOTS:
+            self.logger = BallisticsLogger(self.LOGGING_FILE)
 
     def _init_world_v01(self):
         # Создаем цель: желтый шарик, движется по кругу на расстоянии 10-20 метров
@@ -143,6 +161,8 @@ class Controller:
             # Берем первую попавшуюся
             self.handle_target_lock(targets[0])
             self.state = self.STATE_TRACKING
+            # взводим тамер
+            self.fire_wait_cnt = self.fire_wait_ticks
             print("Цель найлена! Ативируем.")
         else:
              # Возвращаем турель в нейтраль
@@ -160,8 +180,12 @@ class Controller:
             print("Выстрел не закончен! Ждем резкльтат.")
             return
 
-        # стреляем
-        self._perform_automated_shot()
+        if self.fire_wait_cnt > 0:
+            # ждем
+            self.fire_wait_cnt -= 1
+        else:
+            # стреляем
+            self._perform_automated_shot()
 
     def _perform_automated_shot(self):
         """Запись параметров и выстрел."""
@@ -174,7 +198,7 @@ class Controller:
                 "bullet": bullet,
                 "state": state,
                 "min_dist": float('inf'),
-                "last_rel_pos": None,
+                "required_delta": None,
                 "target_pos_at_shot": self.active_track.position.copy()
             }
             self.state = self.STATE_WAIT_CPA
@@ -185,23 +209,34 @@ class Controller:
 
     def _state_wait_cpa(self):
         """4-5. Отслеживаем пулю и ее сближение."""
-        if not self.active_shot or not self.is_locked:
+        if not self.active_shot:
             self.state = self.STATE_SEARCHING
             print("Выстрел обнулен! Ищем.")
             return
 
         shot = self.active_shot
         bullet = shot["bullet"]
-        # Берем текущее положение цели (истинное из трекера)
-        target_pos = self.active_track.position
+        target = self.target_obj
 
-        rel_pos = bullet.pos - target_pos
+        # Берем текущее положение цели (истинное из трекера)
+
+        rel_pos = bullet.pos - target.pos
         current_dist = np.linalg.norm(rel_pos)
 
         # Ищем точку минимального сближения (CPA)
-        if current_dist < shot["min_dist"]:
+        if current_dist < shot["min_dist"] and not bullet.is_dead:
             shot["min_dist"] = current_dist
-            shot["last_rel_pos"] = rel_pos
+
+            # Получаем углы обоих объектов относительно того, КУДА СМОТРЕЛА камера
+            b_yaw, b_pitch = self.camera.get_angles_from_world_point(bullet.pos)
+            t_yaw, t_pitch = self.camera.get_angles_from_world_point(target.pos)
+
+            # Искомая дельта (на сколько промахнулись в радианах)
+            # Если t_yaw > b_yaw, значит цель была правее пули -> нужно добавить yaw
+            delta_yaw = t_yaw - b_yaw
+            delta_pitch = t_pitch - b_pitch
+
+            shot["required_delta"] =(delta_yaw, delta_pitch)
         else:
             # Расстояние начало расти — пуля пролетела мимо цели
             self._finalize_shot(shot)
@@ -210,6 +245,8 @@ class Controller:
             # Если цель всё еще на экране, продолжаем трекинг, иначе в поиск
             if self.is_locked:
                 self.state = self.STATE_TRACKING
+                # взводим тамер
+                self.fire_wait_cnt = self.fire_wait_ticks
                 print("Готовим следующий выстрел.")
             else:
                 self.state =self.STATE_SEARCHING
@@ -217,38 +254,46 @@ class Controller:
 
     def _finalize_shot(self, shot):
         """Вызывается, когда пуля прошла точку CPA"""
-        # Логгер берет на себя всю грязную работу по записи
-        # is_hit, dist = self.logger.log_shot(
-        #     shot["state"],
-        #     shot["last_rel_pos"],
-        #     self.TARGET_RADIUS
-        # )
-        #
-        # self.total_shots += 1
-        # if is_hit:
-        #     self.hits += 1
-        #
+        #Логгер берет на себя всю грязную работу по записи
+        is_hit = shot["min_dist"] < self.TARGET_RADIUS
+
+        if self.LOGGING_SHOTS:
+            self.logger.log_shot(
+                shot["state"],
+                shot["required_delta"],
+                is_hit
+            )
+
+        self.shots_count += 1
+        if is_hit:
+            self.hits_count  += 1
+
         # print(f"--- SHOT REPORT ---")
-        # print(f"Total: {self.total_shots} | Hits: {self.hits} ({self.hits / self.total_shots:.1%})")
-        # print(f"Miss distance: {dist:.3f}m")
+        # print(f"Total: {self.shots_count} | Hits: {self.hits_count} ({self.hits_count / self.shots_count:.1%})")
 
     def get_nn_state(self):
         """Упаковка данных для нейросети (State)."""
-        # Смещение цели от центра прицела (в радианах)
-        # err_yaw = self.active_track.target_yaw - self.turret.current_yaw
-        # err_pitch = self.active_track.target_pitch - self.turret.current_pitch
-        #
-        # # Угловая скорость цели (из трекера)
-        # v_y, v_p = self.active_track.velocity_angles  # Предполагаем наличие этих данных
-        #
-        # return np.array([
-        #     err_yaw,
-        #     err_pitch,
-        #     v_y,
-        #     v_p,
-        #     self.active_track.filtered_dist,
-        #     self.turret.current_pitch
-        # ])
+        if not self.active_track:
+            return np.zeros(6)
+
+        # 1. Текущие углы на цель (отфильтрованные или прямые из трекера)
+        target_yaw, target_pitch = self.active_track.last_angles
+
+        # 2. Ошибка наведения (на сколько прицел сейчас не совпадает с целью)
+        err_yaw = target_yaw - self.turret.yaw
+        err_pitch = target_pitch - self.turret.pitch
+
+        # 3. Угловая скорость (динамика цели)
+        v_y, v_p = self.active_track.velocity_angles
+
+        return np.array([
+            err_yaw,
+            err_pitch,
+            v_y,
+            v_p,
+            self.active_track.filtered_dist,
+            self.turret.pitch  # Наклон ствола важен для баллистики
+        ], dtype=float)
 
     def fire(self):
         self.turret.fire()
@@ -331,10 +376,14 @@ class Controller:
 
                 # наводимся с учетом дистанции
                 self._turret_to_target()
+                self.lost_targ_cnt = 0
 
             else:
-                # Цель потеряна (ушла за экран или скрылась)
-                self.clear_target()
+                self.lost_targ_cnt += 1
+                if self.lost_targ_cnt > 10:
+                    # Цель потеряна (ушла за экран или скрылась)
+                    self.clear_target()
+                    self.lost_targ_cnt = 0
 
     def _turret_to_target(self):
         if not self.active_track: return
@@ -346,6 +395,15 @@ class Controller:
             self.turret.projectile_speed,
             BallisticsSolver.G
         )
+
+        # # 2. Опрашиваем нейросеть (Корректор)
+        # state = self.get_nn_state()
+        # # Сеть выдает поправки, например, [-0.012, +0.005] радиан
+        # delta_yaw, delta_pitch = self.nn_model.predict(state)
+        #
+        # # 3. Итоговый результат
+        # target_yaw +=  delta_yaw
+        # target_pitch += delta_pitch
 
         self.turret.set_target_angles(target_yaw, target_pitch)
 

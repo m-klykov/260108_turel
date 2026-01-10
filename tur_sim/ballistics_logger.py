@@ -9,7 +9,7 @@ class BallisticsLogger:
             "err_yaw", "err_pitch",
             "v_yaw", "v_pitch",
             "dist", "turret_pitch",
-            "miss_x", "miss_y", "miss_z",
+            "delta_yaw", "delta_pitch",
             "is_hit"
         ]
         self._prepare_file()
@@ -21,21 +21,17 @@ class BallisticsLogger:
                 writer = csv.writer(f)
                 writer.writerow(self.headers)
 
-    def log_shot(self, state, miss_vector, target_radius):
+    def log_shot(self, state, miss_angles, is_hit):
         """
         Записывает результат выстрела.
         state: вектор входных данных для нейросети
-        miss_vector: 3D вектор промаха в точке CPA
-        target_radius: радиус цели для определения попадания
+        miss_angles: (delta_yaw, delta_pitch)
+        is_hit: факт попадания
         """
-        miss_dist = np.linalg.norm(miss_vector)
-        is_hit = 1 if miss_dist <= target_radius else 0
 
         # Собираем строку: данные состояния + координаты промаха + флаг попадания
-        row = list(state) + list(miss_vector) + [is_hit]
+        row = list(state) + list(miss_angles) + [is_hit]
 
         with open(self.filename, 'a', newline='') as f:
             writer = csv.writer(f)
             writer.writerow(row)
-
-        return is_hit, miss_dist

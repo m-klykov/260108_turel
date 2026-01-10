@@ -20,8 +20,11 @@ class WidgetTelemetry(WidgetBase):
         pygame.draw.rect(screen, (30, 30, 30), self.rect) # Фон
         pygame.draw.rect(screen, (150, 150, 150), self.rect, 1) # Рамка
 
+        tc = self.controller.shots_count
+        hc = self.controller.hits_count
+
         self.out_line(screen,
-          f"Score: {self.controller.world.score}", 0)
+          f"Total: {tc} | Hits: {hc} ({hc / (tc + 1e-6):.1%})", 0)
         self.out_line(screen,
           f"yaw: {math.degrees(self.controller.camera.yaw):.1f}"+
           f" pitch: {math.degrees(self.controller.camera.pitch):.1f}",
