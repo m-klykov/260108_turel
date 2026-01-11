@@ -47,6 +47,27 @@ class UIManager:
         # Инициализация камеры и виджетов
         self.setup_ui()
 
+        # пробуем подключить джойстик
+
+        pygame.joystick.init()
+
+        self.joystick = None
+        self.joystick_x_val, self.joystick_y_val = 0, 0
+
+        joystick_id = 0
+        if pygame.joystick.get_count() > 0:
+            try:
+                self.joystick = pygame.joystick.Joystick(joystick_id)
+                self.joystick.init()
+                self.joystick_x_val = -self.joystick.get_axis(0)
+                self.joystick_y_val = -self.joystick.get_axis(1)
+                print(f"[pygame] Подключен джойстик: {self.joystick.get_name()} (Осей: {self.joystick.get_numaxes()})")
+            except pygame.error as e:
+                print(f"[pygame] Ошибка инициализации джойстика ID {joystick_id}: {e}")
+                self.joystick = None
+        else:
+            print("[pygame] Джойстик не найден")
+
     def setup_ui(self):
 
         # Размещаем камеру по центру-лево
@@ -145,6 +166,33 @@ class UIManager:
 
             for el in self.elements:
                 el.handle_event(event)
+
+        if self.joystick is not None:
+            self._handle_joystick()
+
+    def _handle_joystick(self):
+
+        if self.controller.state != self.controller.STATE_MANUAL \
+        or self.controller.is_locked:
+            self.controller.turret.apply_joystick_control(0, 0)
+            return
+
+        pygame.event.pump()
+
+        val_x = -self.joystick.get_axis(0)
+        val_y = -self.joystick.get_axis(1)
+
+        DEAD_ZONE = 0.05  # 5% от максимального хода стика
+
+        if abs(val_x) < DEAD_ZONE: val_x = 0.0
+        if abs(val_y) < DEAD_ZONE: val_y = 0.0
+
+        if (self.joystick_x_val != val_x
+                or self.joystick_y_val != val_y):
+            self.joystick_x_val = val_x
+            self.joystick_y_val = val_y
+
+            self.controller.turret.apply_joystick_control(val_x, val_y)
 
     def update(self,dt):
 

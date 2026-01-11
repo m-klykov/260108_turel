@@ -4,11 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="ce504265-fdf2-4c79-9b63-89efac2571c9" name="Changes" comment="Используем фмльтр калмана с ускорениями, выводит метку точного и сглаженного фильтром предсказания">
-      <change afterPath="$PROJECT_DIR$/tur_sim/widget_slider.py" afterDir="false" />
+    <list default="true" id="ce504265-fdf2-4c79-9b63-89efac2571c9" name="Changes" comment="управление настройками калмана при помощи ползунков">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tur_sim/controller.py" beforeDir="false" afterPath="$PROJECT_DIR$/tur_sim/controller.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tur_sim/kalman_predictor.py" beforeDir="false" afterPath="$PROJECT_DIR$/tur_sim/kalman_predictor.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tur_sim/turret_model.py" beforeDir="false" afterPath="$PROJECT_DIR$/tur_sim/turret_model.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tur_sim/ui_manager.py" beforeDir="false" afterPath="$PROJECT_DIR$/tur_sim/ui_manager.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -56,7 +54,7 @@
     "Python.train.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "git-widget-placeholder": "master",
-    "last_opened_file_path": "D:/Python/251212_sim/python/core/ui_pygame.py",
+    "last_opened_file_path": "D:/Python/251212_sim/python/core/nav_controller.py",
     "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable"
   }
 }]]></component>
@@ -213,7 +211,15 @@
       <option name="project" value="LOCAL" />
       <updated>1768091877285</updated>
     </task>
-    <option name="localTasksCounter" value="14" />
+    <task id="LOCAL-00014" summary="управление настройками калмана при помощи ползунков">
+      <option name="closed" value="true" />
+      <created>1768107535332</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1768107535332</updated>
+    </task>
+    <option name="localTasksCounter" value="15" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
@@ -230,6 +236,7 @@
     <MESSAGE value="Обучаем и применяем нейросеть" />
     <MESSAGE value="дабавлены кнопки переключения режима, експеримнты с нейронкой и целями" />
     <MESSAGE value="Используем фмльтр калмана с ускорениями, выводит метку точного и сглаженного фильтром предсказания" />
-    <option name="LAST_COMMIT_MESSAGE" value="Используем фмльтр калмана с ускорениями, выводит метку точного и сглаженного фильтром предсказания" />
+    <MESSAGE value="управление настройками калмана при помощи ползунков" />
+    <option name="LAST_COMMIT_MESSAGE" value="управление настройками калмана при помощи ползунков" />
   </component>
 </project>

@@ -29,6 +29,9 @@ class TurretModel:
         # признак, что мы уперлись в предел скорости турели
         self.limited_turn = False
 
+        self.joystich_val_x = 0
+        self.joystich_val_y = 0
+
     def set_direct_target_angles(self, yaw, pitch):
         """Прямая устанока угла"""
         self.set_target_angles(yaw, pitch)
@@ -38,11 +41,14 @@ class TurretModel:
 
     def set_target_angles(self, yaw, pitch):
         """Устанавливаем точку, куда турель должна начать плавно поворачиваться"""
-        self.target_yaw = yaw
+        self.target_yaw = self.norm_angle(yaw)
         # Ограничим наклон, чтобы пушка не делала "сальто" (от -90 до +90 град)
         self.target_pitch = max(math.radians(-89), min(math.radians(89), pitch))
 
         # print(f"set target angles {self.target_yaw:0.2f} {self.target_pitch:0.2f}")
+
+    def norm_angle(self,angle):
+        return (angle + math.pi) % (2 * math.pi) - math.pi
 
     def _approach(self, current, target, max_delta):
         """Вспомогательная функция для плавного движения к цели"""
@@ -62,8 +68,15 @@ class TurretModel:
         return current + math.copysign(actual_step, diff)
 
     def update(self, dt):
+
+
         # Максимальный поворот за этот кадр
         step = self.max_turn_speed * dt
+
+        self.set_target_angles(
+            self.target_yaw + self.joystich_val_x * step,
+            self.target_pitch + self.joystich_val_y * step
+        )
 
         self.limited_turn = False
         # Плавно двигаем углы
@@ -81,6 +94,11 @@ class TurretModel:
         new_pitch = self.pitch + dy * self.turn_speed
 
         self.set_target_angles(new_yaw, new_pitch)
+
+    def apply_joystick_control(self,val_x, val_y):
+        self.joystich_val_x = -val_x
+        self.joystich_val_y = val_y
+        pass
 
     def fire(self):
         """Создает снаряд, летящий в направлении взгляда турели"""
