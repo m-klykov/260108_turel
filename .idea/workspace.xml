@@ -4,16 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="ce504265-fdf2-4c79-9b63-89efac2571c9" name="Changes" comment="дабавлены кнопки переключения режима, експеримнты с нейронкой и целями">
-      <change afterPath="$PROJECT_DIR$/tur_sim/kalman_predictor.py" afterDir="false" />
+    <list default="true" id="ce504265-fdf2-4c79-9b63-89efac2571c9" name="Changes" comment="Используем фмльтр калмана с ускорениями, выводит метку точного и сглаженного фильтром предсказания">
+      <change afterPath="$PROJECT_DIR$/tur_sim/widget_slider.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tur_sim/camera_virtual.py" beforeDir="false" afterPath="$PROJECT_DIR$/tur_sim/camera_virtual.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tur_sim/controller.py" beforeDir="false" afterPath="$PROJECT_DIR$/tur_sim/controller.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tur_sim/tracked_target.py" beforeDir="false" afterPath="$PROJECT_DIR$/tur_sim/tracked_target.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tur_sim/turret_model.py" beforeDir="false" afterPath="$PROJECT_DIR$/tur_sim/turret_model.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tur_sim/kalman_predictor.py" beforeDir="false" afterPath="$PROJECT_DIR$/tur_sim/kalman_predictor.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tur_sim/ui_manager.py" beforeDir="false" afterPath="$PROJECT_DIR$/tur_sim/ui_manager.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tur_sim/widget_camera.py" beforeDir="false" afterPath="$PROJECT_DIR$/tur_sim/widget_camera.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tur_sim/widget_telemetry.py" beforeDir="false" afterPath="$PROJECT_DIR$/tur_sim/widget_telemetry.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -209,7 +205,15 @@
       <option name="project" value="LOCAL" />
       <updated>1768073832745</updated>
     </task>
-    <option name="localTasksCounter" value="13" />
+    <task id="LOCAL-00013" summary="Используем фмльтр калмана с ускорениями, выводит метку точного и сглаженного фильтром предсказания">
+      <option name="closed" value="true" />
+      <created>1768091877285</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1768091877285</updated>
+    </task>
+    <option name="localTasksCounter" value="14" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
@@ -225,6 +229,7 @@
     <MESSAGE value="механика сбора данных для нейросети" />
     <MESSAGE value="Обучаем и применяем нейросеть" />
     <MESSAGE value="дабавлены кнопки переключения режима, експеримнты с нейронкой и целями" />
-    <option name="LAST_COMMIT_MESSAGE" value="дабавлены кнопки переключения режима, експеримнты с нейронкой и целями" />
+    <MESSAGE value="Используем фмльтр калмана с ускорениями, выводит метку точного и сглаженного фильтром предсказания" />
+    <option name="LAST_COMMIT_MESSAGE" value="Используем фмльтр калмана с ускорениями, выводит метку точного и сглаженного фильтром предсказания" />
   </component>
 </project>

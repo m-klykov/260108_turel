@@ -1,8 +1,10 @@
 import pygame
 
+from .kalman_predictor import KalmanPredictor
 from .widget_buttom import WidgetButton
 from .camera_base import CameraBase
 from .widget_camera import WidgetCamera
+from .widget_slider import WidgetSlider
 from .widget_telemetry import WidgetTelemetry
 from .controller import Controller
 
@@ -11,10 +13,20 @@ BTN_W = 120
 BTN_H = 40
 BTN_GAP = 15
 
+WIN_W = 1000
+WIN_H = 600
+WIN_GAP = 20
+
 FPS_FONT_SIZE = 24
+PAN_W = 300
+
+SLIDER_H = 25
+SLIDER_GAP = 30
+
+TELEM_H = 120
 
 class UIManager:
-    def __init__(self, controller, width=1000, height=600):
+    def __init__(self, controller, width=WIN_W, height=WIN_H):
 
         self.controller : Controller = controller
 
@@ -36,18 +48,57 @@ class UIManager:
         self.setup_ui()
 
     def setup_ui(self):
+
         # Размещаем камеру по центру-лево
         self.elements.append(WidgetCamera(
-            20, 20,
+            WIN_GAP, WIN_GAP,
             self.controller))
+
+        pan_x = self.width - PAN_W - WIN_GAP
+        pan_y = WIN_GAP
 
         # Телеметрия справа
         self.elements.append(WidgetTelemetry(
-            680, 20, 300, 120,
+            pan_x, pan_y, PAN_W, TELEM_H,
             self.controller))
 
-        tool_x = 20
-        tool_y = self.height - BTN_H - BTN_GAP
+        pan_y += TELEM_H + WIN_GAP + SLIDER_GAP
+
+        # --- ползунки ---
+
+        # В инициализации UI:
+        self.kal_q_acc = WidgetSlider(
+            x=pan_x, y=pan_y, w=PAN_W, h=SLIDER_H,
+            font=self.font,
+            label="Q Acceleration",
+            min_val= KalmanPredictor.MIN_Q,
+            max_val= KalmanPredictor.MAX_Q,
+            initial_val= self.controller.get_kalman_param('q_acc'),
+            action_on_release= lambda v: self.controller.set_kalman_param('q_acc',v),
+            is_log=True  # Для Q маштаб очень важен
+        )
+        self.elements.append(self.kal_q_acc)
+
+        pan_y += SLIDER_H + SLIDER_GAP
+
+        self.kal_r_noise = WidgetSlider(
+            x=pan_x, y=pan_y, w=PAN_W, h=SLIDER_H,
+            font=self.font,
+            label="R Noise",
+            min_val= KalmanPredictor.MIN_R_NOISE,
+            max_val= KalmanPredictor.MAX_R_NOISE,
+            initial_val=self.controller.get_kalman_param('r_noise'),
+            action_on_release=lambda v: self.controller.set_kalman_param('r_noise', v),
+            is_log=True
+        )
+        self.elements.append(self.kal_r_noise)
+
+        pan_y += SLIDER_H + SLIDER_GAP
+
+
+        # --- кнопки ---
+        tool_x = WIN_GAP
+        tool_y = self.height - BTN_H - WIN_GAP
 
         # Создаем кнопкb
         self.elements.append(WidgetButton(
@@ -69,6 +120,7 @@ class UIManager:
         ))
 
         tool_x += BTN_W + BTN_GAP
+
 
     def run(self):
         while self.running:

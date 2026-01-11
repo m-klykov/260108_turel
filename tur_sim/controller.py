@@ -6,6 +6,7 @@ from .ballistics_logger import BallisticsLogger
 from .ballistics_solver import BallisticsSolver
 from .camera_virtual import CameraVirtual
 from .image_analizer import ImageAnalyzer
+from .kalman_predictor import KalmanPredictor
 from .motion_base import MotionCircular, MotionPointToPoint, MotionSpline
 from .physical_object import PhysicalObject
 from .physical_world import PhysicalWorld
@@ -35,7 +36,7 @@ class Controller:
     def __init__(self):
         self.world = PhysicalWorld()
 
-        self._init_world() # _v02
+        self._init_world() # _v01 _v02
 
         # Инициализируем виртуальную камеру, передав ей мир
         self.camera : CameraVirtual = CameraVirtual(self.world, width=640, height=480, f=500)
@@ -79,11 +80,29 @@ class Controller:
         self.MAX_CORRECTION_ATTEMPTS = 2  # Макс кол-во быстрых дострелов
         self.K_FEEDBACK = 0.8  # Насколько сильно доверяем промаху (0.8 = 80%)
 
+        self.kalman_params = {
+            'q_acc' : KalmanPredictor.DEF_Q_ACC,
+            'r_noise' : KalmanPredictor.DEF_R_NOISE,
+        }
+
     def set_auto_mode(self, tutn_on):
         if tutn_on:
             self.state = self.STATE_SEARCHING
         else:
             self.state = self.STATE_MANUAL
+
+
+    def get_kalman_param(self,key):
+        return self.kalman_params.get(key, 0.5)
+
+    def set_kalman_param(self,key, value):
+        self.kalman_params[key] = value
+        self.assign_kalman_params()
+
+    def assign_kalman_params(self):
+        """применить настройки к фиотиру кальмана активного трека"""
+        if self.active_track is not None:
+            self.active_track.kalman.set_params(self.kalman_params)
 
     def series_stop(self):
         """остановка серийной стрельбы c автокоррекциуй"""
@@ -145,7 +164,7 @@ class Controller:
         min_b = [-8, -8, 5]
         max_b = [8, -1, 30]
 
-        spline_behavior = MotionSpline(min_b, max_b, num_points=50, speed=5.0)
+        spline_behavior = MotionSpline(min_b, max_b, num_points=50, speed=4.0)
 
         self.target_obj = PhysicalObject(
             pos=[0, -1, 15], radius=self.TARGET_RADIUS,
@@ -420,6 +439,7 @@ class Controller:
                 dist,
                 self.camera
             )
+            self.assign_kalman_params()
         else:
             # Обновляем существующий
             # Передаем сырые данные в трек для стабилизации
