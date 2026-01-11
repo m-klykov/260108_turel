@@ -36,6 +36,8 @@ class WidgetCamera(WidgetBase):
 
         self._draw_detections(screen)
 
+        self._draw_prediction(screen)
+
         # 4. Внешняя рамка виджета
         pygame.draw.rect(screen, (100, 100, 100), self.rect, 2)
 
@@ -82,6 +84,27 @@ class WidgetCamera(WidgetBase):
                 thickness = 1
 
             pygame.draw.rect(screen, color, rect_to_draw, thickness)
+
+    def _draw_dot(self, screen, px, py, color):
+
+        # Рисуем маленькую точку или перекрестие
+        sx = self.rect.x + px
+        sy = self.rect.y + py
+
+        pygame.draw.circle(screen,color,(sx, sy), 5, 1)
+
+    def _draw_prediction(self, screen):
+        if self.controller.active_track is not None:
+            try:
+                px, py = self.controller.active_track.predicted_screen_pos
+                self._draw_dot(screen, px, py,(0, 100, 0))
+
+                px, py = self.controller.active_track.old_predicted_screen_pos
+                self._draw_dot(screen, px, py, (100, 0, 0))
+            except:
+                pass
+
+
 
     def handle_event(self,event):
         if event.type == pygame.MOUSEBUTTONDOWN:

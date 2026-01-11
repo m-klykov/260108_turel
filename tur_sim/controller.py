@@ -30,6 +30,8 @@ class Controller:
 
     USE_AI = False # исаоользуем нейросеть
 
+    USE_SERIES = False # использовать серийнцю стрельбу
+
     def __init__(self):
         self.world = PhysicalWorld()
 
@@ -52,6 +54,7 @@ class Controller:
         self.active_shot = None  # Информация о летящей пуле
         self.shots_count = 0
         self.hits_count = 0
+        self.chits_count = 0
 
         self.fire_wait_ticks = 50
         self.fire_wait_cnt = 0
@@ -69,11 +72,24 @@ class Controller:
         if self.USE_AI:
             self.corrector = BallisticsCorrector()
 
+        # --- НОВОЕ ДЛЯ ОБРАТНОЙ СВЯЗИ ---
+        self.feedback_offset_yaw = 0.0
+        self.feedback_offset_pitch = 0.0
+        self.correction_series_cnt = 0
+        self.MAX_CORRECTION_ATTEMPTS = 2  # Макс кол-во быстрых дострелов
+        self.K_FEEDBACK = 0.8  # Насколько сильно доверяем промаху (0.8 = 80%)
+
     def set_auto_mode(self, tutn_on):
         if tutn_on:
             self.state = self.STATE_SEARCHING
         else:
             self.state = self.STATE_MANUAL
+
+    def series_stop(self):
+        """остановка серийной стрельбы c автокоррекциуй"""
+        self.feedback_offset_yaw = 0.0
+        self.feedback_offset_pitch = 0.0
+        self.correction_series_cnt = 0
 
     def _init_world_v01(self):
         # Создаем цель: желтый шарик, движется по кругу на расстоянии 10-20 метров
@@ -211,7 +227,7 @@ class Controller:
         if self.fire_wait_cnt > 0:
             # ждем
             self.fire_wait_cnt -= 1
-        else:
+        elif not self.turret.limited_turn:
             # стреляем
             self._perform_automated_shot()
 
@@ -234,6 +250,7 @@ class Controller:
             self.shots_count += 1
         else:
             self.active_shot = None
+
 
     def _state_wait_cpa(self):
         """4-5. Отслеживаем пулю и ее сближение."""
@@ -280,10 +297,11 @@ class Controller:
                 self.state =self.STATE_SEARCHING
                 print("Ищем цель.")
 
+
     def _finalize_shot(self, shot):
         """Вызывается, когда пуля прошла точку CPA"""
         #Логгер берет на себя всю грязную работу по записи
-        is_hit = shot["min_dist"] < self.TARGET_RADIUS
+        is_hit = shot["min_dist"] < self.TARGET_RADIUS + self.turret.BULLET_RADIUS
 
         if self.LOGGING_SHOTS:
             self.logger.log_shot(
@@ -295,6 +313,34 @@ class Controller:
         self.shots_count += 1
         if is_hit:
             self.hits_count  += 1
+            # Попали! Сбрасываем серию коррекций и офсеты
+            if self.correction_series_cnt>0:
+                self.chits_count += 1
+                print(f"ПОПАДАНИЕ с коррекцией!.")
+            else:
+                print(f"ПОПАДАНИЕ балистикой!.")
+            self.series_stop()
+        elif self.USE_SERIES:
+            try:
+                # ПРОМАХ. Считаем поправку
+                d_yaw, d_pitch = shot["required_delta"]
+            except:
+                d_yaw, d_pitch = 0, 0
+
+            if self.correction_series_cnt < self.MAX_CORRECTION_ATTEMPTS:
+                # Добавляем ошибку к текущему смещению
+                fb = self.K_FEEDBACK
+                self.feedback_offset_yaw = self.feedback_offset_yaw*(1-fb) + d_yaw * fb
+                self.feedback_offset_pitch = self.feedback_offset_pitch*(1-fb) + d_pitch * fb
+                self.correction_series_cnt += 1
+
+                # Магия: обнуляем таймер ожидания, чтобы выстрелить СРАЗУ
+                self.fire_wait_cnt = 2  # минимальная пауза на успокоение приводов
+                print(f"Промах! Попытка коррекции {self.correction_series_cnt}/{self.MAX_CORRECTION_ATTEMPTS}")
+            else:
+                # Попытки кончились, сбрасываемся на чистую баллистику
+                self.series_stop()
+                print("Серия коррекций исчерпана. Возврат к баллистике.")
 
         # print(f"--- SHOT REPORT ---")
         # print(f"Total: {self.shots_count} | Hits: {self.hits_count} ({self.hits_count / self.shots_count:.1%})")
@@ -347,6 +393,7 @@ class Controller:
         self.locked_target_data = None
         self.is_locked = False
         self.active_track = None
+        self.series_stop()
 
     def move_turret_to_pixel(self, x, y):
         """Сброс захвата и ручной поворот в точку"""
@@ -434,10 +481,12 @@ class Controller:
             # print(f"Target angles: Math({target_yaw:.3f}) | AI({d_yaw:.4f})")
             # print(f"Inputs: Dist: {state[4]:.1f} | V_yaw: {state[2]:.4f}")
 
-            # 4. Складываем результат
             target_yaw -= d_yaw
             target_pitch -= d_pitch
 
+        #  Поправка от "быстрого дострела" (Feedback Loop)
+        target_yaw += self.feedback_offset_yaw
+        target_pitch += self.feedback_offset_pitch
 
         self.turret.set_target_angles(target_yaw, target_pitch)
 

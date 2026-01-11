@@ -22,16 +22,19 @@ class WidgetTelemetry(WidgetBase):
 
         tc = self.controller.shots_count
         hc = self.controller.hits_count
+        cc = self.controller.chits_count
 
         self.out_line(screen,
-          f"Total: {tc} | Hits: {hc} ({hc / (tc + 1e-6):.1%})", 0)
+            f"Выстрелов: {tc} | Попало: {hc} ({hc / (tc + 1e-6):.1%})", 0)
+        self.out_line(screen,
+            f"попало сразу: {hc-cc} ({(hc-cc) / (hc + 1e-6):.1%})", 1)
         self.out_line(screen,
           f"yaw: {math.degrees(self.controller.camera.yaw):.1f}"+
           f" pitch: {math.degrees(self.controller.camera.pitch):.1f}",
-          1)
+          2)
 
         self.out_line(screen,
-            f"Dist to target: {self.controller.get_locked_distance():0.1f}", 2)
+            f"Dist to target: {self.controller.get_locked_distance():0.1f}", 3)
 
 
 

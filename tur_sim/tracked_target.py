@@ -4,11 +4,13 @@ import numpy as np
 import time
 
 from tur_sim.camera_virtual import CameraVirtual
+from tur_sim.kalman_predictor import KalmanPredictor
 
 
 class TrackedTarget:
     def __init__(self, target_id, screen_x, screen_y, raw_dist, camera):
         self.id = target_id
+        self.camera = camera
         self.position = camera.get_world_pos_from_screen(screen_x, screen_y, raw_dist)
         self.velocity = np.zeros(3)
 
@@ -27,6 +29,12 @@ class TrackedTarget:
 
         self.last_angles = None
         self.velocity_angles = np.zeros(2)  # [v_yaw, v_pitch] в рад/сек
+
+        #--- НОВОЕ: ЭКЗЕМПЛЯР КАЛМАНА - --
+        self.kalman = KalmanPredictor(self.position)
+        self.predicted_screen_pos = (screen_x, screen_y) # кальман
+        self.old_predicted_screen_pos = (screen_x, screen_y) # линейное предсказание
+        # -------------------------------
 
     def update_with_screen_data(self, screen_x, screen_y, raw_dist, camera):
         """
@@ -56,6 +64,11 @@ class TrackedTarget:
         # 2. Получаем мировую позицию, используя УЖЕ ОТФИЛЬТРОВАННУЮ дистанцию
         stable_world_pos = camera.get_world_pos_from_screen(screen_x, screen_y, self.filtered_dist)
 
+        # --- НОВОЕ: ОБНОВЛЯЕМ КАЛМАНА ---
+        # Передаем "сырую" позицию для обучения Калмана
+        self.kalman.update(stable_world_pos, dt)
+        # -------------------------------
+
         # 3. Вызываем обычный метод обновления позиции и скорости
         self.update(stable_world_pos)
 
@@ -80,7 +93,16 @@ class TrackedTarget:
 
     def predict_position(self, t_ahead):
         """Экстраполяция: где будет цель через t_ahead секунд"""
-        return self.position + self.velocity * t_ahead
+
+        # Делаем предсказание для отрисовки
+        k_future = self.kalman.predict(t_ahead)
+        self.predicted_screen_pos = self.camera.get_pixel_from_world_pos(k_future)
+
+        r_pos = self.position + self.velocity * t_ahead
+        self.old_predicted_screen_pos = self.camera.get_pixel_from_world_pos(r_pos)
+
+        # return r_pos
+        return k_future
 
     def get_fire_solution(self, shooter_pos, projectile_speed, g):
         """

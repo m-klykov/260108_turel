@@ -4,15 +4,16 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="ce504265-fdf2-4c79-9b63-89efac2571c9" name="Changes" comment="Обучаем и применяем нейросеть">
-      <change afterPath="$PROJECT_DIR$/analise.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tur_sim/widget_buttom.py" afterDir="false" />
+    <list default="true" id="ce504265-fdf2-4c79-9b63-89efac2571c9" name="Changes" comment="дабавлены кнопки переключения режима, експеримнты с нейронкой и целями">
+      <change afterPath="$PROJECT_DIR$/tur_sim/kalman_predictor.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Pipfile" beforeDir="false" afterPath="$PROJECT_DIR$/Pipfile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Pipfile.lock" beforeDir="false" afterPath="$PROJECT_DIR$/Pipfile.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tur_sim/camera_virtual.py" beforeDir="false" afterPath="$PROJECT_DIR$/tur_sim/camera_virtual.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tur_sim/controller.py" beforeDir="false" afterPath="$PROJECT_DIR$/tur_sim/controller.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tur_sim/tracked_target.py" beforeDir="false" afterPath="$PROJECT_DIR$/tur_sim/tracked_target.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tur_sim/turret_model.py" beforeDir="false" afterPath="$PROJECT_DIR$/tur_sim/turret_model.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tur_sim/ui_manager.py" beforeDir="false" afterPath="$PROJECT_DIR$/tur_sim/ui_manager.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tur_sim/widget_camera.py" beforeDir="false" afterPath="$PROJECT_DIR$/tur_sim/widget_camera.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tur_sim/widget_telemetry.py" beforeDir="false" afterPath="$PROJECT_DIR$/tur_sim/widget_telemetry.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -200,7 +201,15 @@
       <option name="project" value="LOCAL" />
       <updated>1768015643396</updated>
     </task>
-    <option name="localTasksCounter" value="12" />
+    <task id="LOCAL-00012" summary="дабавлены кнопки переключения режима, експеримнты с нейронкой и целями">
+      <option name="closed" value="true" />
+      <created>1768073832745</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1768073832745</updated>
+    </task>
+    <option name="localTasksCounter" value="13" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
@@ -215,6 +224,7 @@
     <MESSAGE value="автоматическия стрельба" />
     <MESSAGE value="механика сбора данных для нейросети" />
     <MESSAGE value="Обучаем и применяем нейросеть" />
-    <option name="LAST_COMMIT_MESSAGE" value="Обучаем и применяем нейросеть" />
+    <MESSAGE value="дабавлены кнопки переключения режима, експеримнты с нейронкой и целями" />
+    <option name="LAST_COMMIT_MESSAGE" value="дабавлены кнопки переключения режима, експеримнты с нейронкой и целями" />
   </component>
 </project>

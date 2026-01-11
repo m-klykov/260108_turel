@@ -232,3 +232,29 @@ class CameraVirtual(CameraBase):
         pitch_offset = np.arctan2(y, dist_xz)
 
         return yaw_offset, pitch_offset
+
+    def get_pixel_from_world_pos(self, world_pos):
+        """
+        Превращает мировые координаты [X, Y, Z] в экранные пиксели (x, y).
+        """
+        try:
+            # 1. Переводим из мировых координат в локальные координаты камеры.
+            # Так как local_pos = R @ world_pos, используем прямую матрицу вращения.
+            R = self._get_rotation_matrix()
+            local_pos = R @ np.array(world_pos)
+
+            lx, ly, lz = local_pos
+
+            # Проверка: если точка находится за камерой (lz <= 0),
+            # отрисовка на экране математически невозможна или даст артефакты.
+            if lz <= 0:
+                return None
+
+            # 2. Проекция на плоскость экрана (Perspective Projection)
+            # Формула: x_pixel = (lx * f / distance) + cx
+            screen_x = (lx * self.f / lz) + self.cx
+            screen_y = (ly * self.f / lz) + self.cy
+        except:
+            screen_x, screen_y = self.cx, self.cy
+
+        return (int(screen_x), int(screen_y))

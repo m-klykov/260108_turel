@@ -43,7 +43,7 @@ class UIManager:
 
         # Телеметрия справа
         self.elements.append(WidgetTelemetry(
-            680, 20, 300, 100,
+            680, 20, 300, 120,
             self.controller))
 
         tool_x = 20

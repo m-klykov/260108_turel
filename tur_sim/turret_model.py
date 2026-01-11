@@ -7,9 +7,8 @@ from .physical_object import PhysicalObject
 from .motion_base import MotionLinear, MotionBallistic  # Предположим, пуля летит прямо
 from .physical_world import PhysicalWorld
 
-
-
 class TurretModel:
+    BULLET_RADIUS = 0.2
     def __init__(self, camera, world):
         self.camera : CameraVirtual = camera  # Турель "несет" камеру
         self.world : PhysicalWorld = world
@@ -26,6 +25,9 @@ class TurretModel:
         self.max_turn_speed = math.radians(60)
 
         self.projectile_speed = 50.0  # м/с
+
+        # признак, что мы уперлись в предел скорости турели
+        self.limited_turn = False
 
     def set_direct_target_angles(self, yaw, pitch):
         """Прямая устанока угла"""
@@ -50,13 +52,20 @@ class TurretModel:
             return current
 
         # Плавное замедление: если дистанция меньше шага, уменьшаем шаг
-        actual_step = min(max_delta, abs(diff) * 0.5)
+        if abs(diff)<max_delta:
+            actual_step = abs(diff) / 2
+        else:
+            actual_step = max_delta
+            self.limited_turn = True
+
+        # actual_step = min(max_delta, abs(diff) * 0.5)
         return current + math.copysign(actual_step, diff)
 
     def update(self, dt):
         # Максимальный поворот за этот кадр
         step = self.max_turn_speed * dt
 
+        self.limited_turn = False
         # Плавно двигаем углы
         self.yaw = self._approach(self.yaw, self.target_yaw, step)
         self.pitch = self._approach(self.pitch, self.target_pitch, step)
@@ -89,7 +98,7 @@ class TurretModel:
         # Снаряд: маленький зеленый шарик
         projectile = PhysicalObject(
             pos= [0, 0, 0],  # Вылет из начала координат (где стоит пушка)
-            radius= 0.2,
+            radius= self.BULLET_RADIUS,
             color= (0, 255, 0),
             obj_type= "bullet",
             behavior= MotionBallistic(velocity=velocity),
